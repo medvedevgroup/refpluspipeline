@@ -2,7 +2,7 @@ import java.util.StringTokenizer;
 
 
 public class Variation {
-	public static enum TYPE {INSERTION, DELETION, INVERSION, TANDEM, TRANSLOCATION, SNP};
+	public static enum TYPE {INSERTION, DELETION, TRANSLOCATION_DELETION, INVERSION, TANDEM, TRANSLOCATION, INVERTED_TRANSLOCATION, DUPLICATION, INVERTED_DUPLICATION, INTERCHROMOSOMAL_TRANSLOCATION, INTERCHROMOSOMAL_DUPLICATION, INTERCHROMOSOMAL_INVERTED_TRANSLOCATION, INTERCHROMOSOMAL_INVERTED_DUPLICATION, SNP};
 	
 	private TYPE type;
 	private String sequence;
@@ -20,22 +20,7 @@ public class Variation {
 	public Variation(String bedLine){
 		StringTokenizer t = new StringTokenizer(bedLine);
 		String type = t.nextToken();
-		if(type.equals("SNP")){
-			this.type = TYPE.SNP;
-		} else if(type.equals("INSERTION")){
-			this.type = TYPE.INSERTION;
-		} else if(type.equals("DELETION")){
-			this.type = TYPE.DELETION;
-		} else if(type.equals("INVERSION")){
-			this.type = TYPE.INVERSION;
-		}else if(type.equals("TANDEM")){
-			this.type = TYPE.TANDEM;
-		}else if(type.equals("TRANSLOCATION")){
-			this.type = TYPE.TRANSLOCATION;
-		}else {
-			System.err.println("Unknown type for variation!");
-			System.exit(1);
-		}
+		this.type = TYPE.valueOf(type);
 		StringTokenizer l = new StringTokenizer(t.nextToken(),":-");
 			this.location = new GenomicInterval(l.nextToken(), new Interval(Integer.parseInt(l.nextToken()), Integer.parseInt(l.nextToken())));
 		if(t.hasMoreTokens()){

@@ -238,8 +238,9 @@ public class ReferenceSimulation {
 				
 				switch(v.getType()){
 				case DELETION: 
+				case TRANSLOCATION_DELETION:
 					lastLocation = v.getLocation().end+1;
-					System.out.println("DELETION\t"+chromosome+":"+newRefLocation+"-"+newRefLocation);
+					System.out.println(v.getType()+"\t"+chromosome+":"+newRefLocation+"-"+newRefLocation);
 					offsets.write(chromosome+"\t"+newRefLocation+"\t"+(newRefLocation - lastLocation)+"\n");
 					breakpoints.write((v.getLocation().start-1)+"\t"+(v.getLocation().end+1)+"\n");
 					break;
@@ -254,11 +255,28 @@ public class ReferenceSimulation {
 					break;
 				case INSERTION: 
 				case TRANSLOCATION:
+				case DUPLICATION:
+				case INVERTED_TRANSLOCATION:
+				case INVERTED_DUPLICATION:
+				case INTERCHROMOSOMAL_TRANSLOCATION:
+				case INTERCHROMOSOMAL_DUPLICATION:
+				case INTERCHROMOSOMAL_INVERTED_TRANSLOCATION:
+				case INTERCHROMOSOMAL_INVERTED_DUPLICATION:
 					GenomicInterval insert = v.parseSequenceAsInterval();
-					String insertion;
+					String insertion = null;
 					if (insert != null){
-						insertion = new String(reference.getSubsequenceAt(insert.chrom, insert.start, insert.end).getBases());
-					} else 
+						if(v.getType() == Variation.TYPE.INVERTED_DUPLICATION || v.getType() == Variation.TYPE.INVERTED_TRANSLOCATION
+							|| v.getType() == Variation.TYPE.INTERCHROMOSOMAL_INVERTED_DUPLICATION 
+							|| v.getType() == Variation.TYPE.INTERCHROMOSOMAL_INVERTED_TRANSLOCATION) {
+							try{
+								insertion = reverseComplement(new String(reference.getSubsequenceAt(insert.chrom, insert.start, insert.end).getBases()));
+							} catch(Exception e){
+								System.out.println(e);
+								System.exit(0);
+							}
+						} else
+							insertion = new String(reference.getSubsequenceAt(insert.chrom, insert.start, insert.end).getBases());
+					} else
 						insertion = v.getSequence();
 					out.write(insertion);
 					System.out.println(v.getType()+"\t"+chromosome+":"+newRefLocation+"-"+(newRefLocation+insertion.length()));
